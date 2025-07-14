@@ -12,7 +12,11 @@ import {
 
 const { width, height } = Dimensions.get('window');
 
-const MoodTracker = () => {
+interface MoodTrackerProps {
+  onComplete?: () => void;
+}
+
+const MoodTracker = ({ onComplete }: MoodTrackerProps) => {
   const [mood, setMood] = useState<number | null>(null);
   const [sliderValue, setSliderValue] = useState(5);
   const [showEmotionsTab, setShowEmotionsTab] = useState(false);
@@ -107,6 +111,8 @@ const MoodTracker = () => {
     setSliderValue(5);
     setShowEmotionsTab(false);
     setSelectedEmotions([]);
+    // Call the onComplete callback if provided
+    onComplete?.();
   };
 
   return (
