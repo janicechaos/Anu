@@ -9,11 +9,12 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { Mood } from './journalling';
 
 const { width, height } = Dimensions.get('window');
 
 interface MoodTrackerProps {
-  onComplete?: () => void;
+  onComplete?: (selectedMoods?: Mood[]) => void;
 }
 
 const MoodTracker = ({ onComplete }: MoodTrackerProps) => {
@@ -111,8 +112,15 @@ const MoodTracker = ({ onComplete }: MoodTrackerProps) => {
     setSliderValue(5);
     setShowEmotionsTab(false);
     setSelectedEmotions([]);
-    // Call the onComplete callback if provided
-    onComplete?.();
+    // Map selectedEmotions to Mood[]
+    const selectedMoods: Mood[] = emotions
+      .filter((emotion) => selectedEmotions.includes(emotion.id))
+      .map((emotion) => ({
+        emoji: emotion.emoji,
+        name: emotion.name,
+        color: emotion.color,
+      }));
+    onComplete?.(selectedMoods);
   };
 
   return (

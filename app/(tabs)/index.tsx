@@ -1,40 +1,28 @@
-import ActivityChoice from '@/components/ActivityChoice';
+import AuthScreen from '@/components/AuthScreen';
+import JournalScreen, { Mood } from '@/components/journalling';
 import MoodSlider from '@/components/MoodTracker';
-import PeriodCalendar from '@/components/PeriodCalendar';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 export default function HomeScreen() {
-  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
-  const [showActivityChoice, setShowActivityChoice] = useState(false);
-  const [showMoodTracker, setShowMoodTracker] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [showJournal, setShowJournal] = useState(false);
+  const [selectedMoods, setSelectedMoods] = useState<Mood[] | undefined>(undefined);
 
-  const handleActivityChoice = (choice: 'mental' | 'physical' | 'both') => {
-    setSelectedActivity(choice);
-    // You can add navigation logic here if needed
-    console.log('Selected activity:', choice);
+  const handleMoodComplete = (moods?: Mood[]) => {
+    setSelectedMoods(moods);
+    setShowJournal(true);
   };
 
-  const handleMoodComplete = () => {
-    setShowActivityChoice(true);
-  };
-
-  const handlePeriodComplete = () => {
-    setShowMoodTracker(true);
-  };
-
-  // Show PeriodCalendar first
-  if (!showMoodTracker) {
-    return <PeriodCalendar onComplete={handlePeriodComplete} />;
+  if (!authenticated) {
+    return <AuthScreen onAuthSuccess={() => setAuthenticated(true)} />;
   }
 
-  // Then show mood tracker
-  if (!showActivityChoice) {
+  if (!showJournal) {
     return <MoodSlider onComplete={handleMoodComplete} />;
   }
 
-  // Finally show activity choice
-  return <ActivityChoice onChoice={handleActivityChoice} />;
+  return <JournalScreen selectedMoods={selectedMoods} />;
 }
 
 const styles = StyleSheet.create({
