@@ -7,7 +7,7 @@ import { initializeApp } from "firebase/app";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBUa47pQAbrHtCqsc3qE4XwK_-xy0RuYKQ",
+  apiKey: "AIzaSyBnxTxLNubL-ys-Kgt1BH99Dp3PCCt-QNU",
   authDomain: "anu-app-31471.firebaseapp.com",
   projectId: "anu-app-31471",
   storageBucket: "anu-app-31471.firebasestorage.app",
