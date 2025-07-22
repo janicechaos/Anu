@@ -23,6 +23,7 @@ export interface Mood {
 
 interface JournalScreenProps {
   selectedMoods?: Mood[];
+  onJournalSaved?: () => void;
 }
 
 const defaultMoods: Mood[] = [
@@ -36,7 +37,7 @@ const defaultMoods: Mood[] = [
   { emoji: '🥰', name: 'Loved', color: '#FFB6C1' },
 ];
 
-const JournalScreen: React.FC<JournalScreenProps> = ({ selectedMoods }) => {
+const JournalScreen: React.FC<JournalScreenProps> = ({ selectedMoods, onJournalSaved }) => {
   const [mode, setMode] = useState<Mode>('free');
   const [journalText, setJournalText] = useState('');
   const [currentPrompt, setCurrentPrompt] = useState('');
@@ -135,10 +136,14 @@ const JournalScreen: React.FC<JournalScreenProps> = ({ selectedMoods }) => {
     setShowSaveAnimation(true);
     setTimeout(() => {
       setShowSaveAnimation(false);
-      Alert.alert('Saved!', 'Your journal entry has been saved.', [
-        { text: 'New Entry', onPress: () => handleNewEntry() },
-        { text: 'Continue', onPress: () => {} },
-      ]);
+      if (typeof onJournalSaved === 'function') {
+        onJournalSaved();
+      } else {
+        Alert.alert('Saved!', 'Your journal entry has been saved.', [
+          { text: 'New Entry', onPress: () => handleNewEntry() },
+          { text: 'Continue', onPress: () => {} },
+        ]);
+      }
     }, 1500);
   };
 
