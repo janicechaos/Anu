@@ -164,25 +164,16 @@ export default function TetrisGame() {
     while (isValidPosition(board, currentPiece, currentPosition.x, newY + 1, currentRotation)) {
       newY++;
     }
-    setCurrentPosition(pos => {
-      // Place the piece immediately after moving
-      placePieceWithPosition(currentPosition.x, newY);
-      return { ...pos, y: newY };
-    });
-  }, [board, currentPiece, currentPosition, currentRotation, gameOver, isPaused]);
-
-  // Helper to place piece at a specific position
-  const placePieceWithPosition = (x, y) => {
-    if (!currentPiece) return;
+    // Place the piece at the final position directly
     const newBoard = board.map(row => [...row]);
     const shape = PIECES[currentPiece][currentRotation % PIECES[currentPiece].length];
     for (let py = 0; py < shape.length; py++) {
       for (let px = 0; px < shape[py].length; px++) {
         if (shape[py][px]) {
-          const newX = x + px;
-          const newY = y + py;
-          if (newY >= 0) {
-            newBoard[newY][newX] = currentPiece;
+          const newX = currentPosition.x + px;
+          const finalY = newY + py;
+          if (finalY >= 0) {
+            newBoard[finalY][newX] = currentPiece;
           }
         }
       }
@@ -206,7 +197,9 @@ export default function TetrisGame() {
       setLevel(Math.floor((lines + linesCleared) / 10) + 1);
     }
     spawnNewPiece();
-  };
+  }, [board, currentPiece, currentPosition, currentRotation, gameOver, isPaused, level, lines, spawnNewPiece]);
+
+
 
   const startGame = () => {
     setBoard(createEmptyBoard());
