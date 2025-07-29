@@ -32,6 +32,115 @@ const CAMERA_OFFSET = GAME_HEIGHT * 0.3;
 
 const GRADIENT_COLORS = ['#a78bfa', '#f472b6', '#6366f1'] as const;
 
+// Tree Icon Component
+const TreeIcon = ({ size = 30 }: { size?: number }) => {
+  return (
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      {/* Tree Canopy (Head) */}
+      <View style={{
+        width: size * 0.8,
+        height: size * 0.6,
+        backgroundColor: '#90EE90', // Light green
+        borderRadius: size * 0.1,
+        borderWidth: 1,
+        borderColor: '#000',
+        position: 'relative',
+        marginBottom: 2
+      }}>
+        {/* Eyes */}
+        <View style={{
+          position: 'absolute',
+          top: size * 0.15,
+          left: size * 0.2,
+          width: size * 0.15,
+          height: size * 0.12,
+          backgroundColor: '#000',
+          borderRadius: size * 0.06,
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <View style={{
+            width: size * 0.04,
+            height: size * 0.04,
+            backgroundColor: '#fff',
+            borderRadius: size * 0.02,
+            position: 'absolute',
+            top: 2,
+            right: 2
+          }} />
+        </View>
+        <View style={{
+          position: 'absolute',
+          top: size * 0.15,
+          right: size * 0.2,
+          width: size * 0.15,
+          height: size * 0.12,
+          backgroundColor: '#000',
+          borderRadius: size * 0.06,
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <View style={{
+            width: size * 0.04,
+            height: size * 0.04,
+            backgroundColor: '#fff',
+            borderRadius: size * 0.02,
+            position: 'absolute',
+            top: 2,
+            right: 2
+          }} />
+        </View>
+        {/* Smile */}
+        <View style={{
+          position: 'absolute',
+          bottom: size * 0.15,
+          left: '50%',
+          width: size * 0.3,
+          height: size * 0.08,
+          borderBottomWidth: 2,
+          borderBottomColor: '#000',
+          borderRadius: size * 0.04,
+          transform: [{ translateX: -size * 0.15 }]
+        }} />
+      </View>
+      {/* Tree Trunk */}
+      <View style={{
+        width: size * 0.4,
+        height: size * 0.4,
+        backgroundColor: '#D2B48C', // Light brown
+        borderWidth: 1,
+        borderColor: '#000',
+        borderRadius: size * 0.05,
+        position: 'relative'
+      }}>
+        {/* Roots/Feet */}
+        <View style={{
+          position: 'absolute',
+          bottom: -size * 0.05,
+          left: -size * 0.1,
+          width: size * 0.15,
+          height: size * 0.1,
+          backgroundColor: '#D2B48C',
+          borderWidth: 1,
+          borderColor: '#000',
+          borderRadius: size * 0.05
+        }} />
+        <View style={{
+          position: 'absolute',
+          bottom: -size * 0.05,
+          right: -size * 0.1,
+          width: size * 0.15,
+          height: size * 0.1,
+          backgroundColor: '#D2B48C',
+          borderWidth: 1,
+          borderColor: '#000',
+          borderRadius: size * 0.05
+        }} />
+      </View>
+    </View>
+  );
+};
+
 const DoodleJump = () => {
   const [gameState, setGameState] = useState<'menu' | 'playing' | 'gameOver'>('menu');
   const [score, setScore] = useState(0);
@@ -89,7 +198,7 @@ const DoodleJump = () => {
   const gameLoop = () => {
     if (gameState !== 'playing') return;
     const currentPlayer = playerRef.current;
-    const currentPlatforms = platformsRef.current;
+    let currentPlatforms = [...platformsRef.current];
     const currentCamera = cameraRef.current;
     // Handle horizontal movement
     if (keys.left) currentPlayer.velocityX = Math.max(currentPlayer.velocityX - 0.5, -8);
@@ -135,6 +244,10 @@ const DoodleJump = () => {
         });
       }
     }
+    // Clean up old platforms that are far below the camera
+    currentPlatforms = currentPlatforms.filter(platform => 
+      platform.y > currentCamera.y - GAME_HEIGHT - 200
+    );
     // Game over condition
     if (currentPlayer.y > currentCamera.y + GAME_HEIGHT + 100) {
       setGameState('gameOver');
@@ -143,9 +256,10 @@ const DoodleJump = () => {
       }
       return;
     }
-    // Update state
+    // Update refs and state
+    platformsRef.current = currentPlatforms;
     setPlayer({ ...currentPlayer });
-    setPlatforms([...currentPlatforms]);
+    setPlatforms(currentPlatforms);
     setCamera({ ...currentCamera });
   };
 
@@ -273,9 +387,6 @@ const DoodleJump = () => {
                     left: platform.x,
                     top: platform.y - camera.y,
                     position: 'absolute',
-                    backgroundColor: '#60a5fa', // pastel blue
-                    borderColor: '#2563eb', // darker blue border
-                    shadowColor: '#2563eb', // blue shadow
                   },
                 ]}
               />
@@ -288,15 +399,14 @@ const DoodleJump = () => {
                 left: player.x,
                 top: player.y - camera.y,
                 position: 'absolute',
-                backgroundColor: '#fff', // white player
-                borderColor: '#a78bfa', // purple border
-                shadowColor: '#f472b6', // pink shadow
+                backgroundColor: 'transparent',
+                borderWidth: 0,
                 justifyContent: 'center',
                 alignItems: 'center',
               },
             ]}
           >
-            <Text style={{ fontSize: 22, color: '#6366f1', fontWeight: 'bold', textAlign: 'center' }}>😃</Text>
+            <TreeIcon size={PLAYER_SIZE} />
           </View>
         </View>
       </View>
@@ -473,14 +583,7 @@ const rnStyles = StyleSheet.create({
   player: {
     width: PLAYER_SIZE,
     height: PLAYER_SIZE,
-    backgroundColor: '#fff',
-    borderRadius: PLAYER_SIZE / 2,
-    borderWidth: 3,
-    borderColor: '#a78bfa',
-    shadowColor: '#f472b6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
   },
